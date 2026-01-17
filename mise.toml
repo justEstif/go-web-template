@@ -1,7 +1,7 @@
 [tools]
 go = "latest"
 bun = "latest"
-"ubi:a-h/templ" = "latest"
+"go:github.com/a-h/templ/cmd/templ" = "latest"
 "go:github.com/sqlc-dev/sqlc/cmd/sqlc" = "latest"
 "go:github.com/golang-migrate/migrate/v4/cmd/migrate" = { version = "latest", tags = "postgres" }
 "go:github.com/air-verse/air" = "latest"
@@ -9,6 +9,7 @@ bun = "latest"
 [env]
 DATABASE_URL = "postgres://postgres:postgres@localhost:5432/appdb?sslmode=disable"
 PORT = "3000"
+# TODO openssl rand -base64 32 | tr -d '=' | cut -c1-32
 CSRF_KEY = "32-byte-long-auth-key-change-me"
 
 [tasks.dev]
@@ -17,11 +18,11 @@ run = "air"
 
 [tasks.css]
 description = "Build Tailwind CSS"
-run = "bunx tailwindcss -i ./static/css/input.css -o ./static/css/output.css"
+run = "bunx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css"
 
 [tasks.css-watch]
 description = "Watch and rebuild Tailwind CSS"
-run = "bunx tailwindcss -i ./static/css/input.css -o ./static/css/output.css --watch"
+run = "bunx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --watch"
 
 [tasks.templ]
 description = "Generate templ files"
@@ -46,7 +47,7 @@ bun install
 migrate -path migrations -database ${DATABASE_URL} up
 templ generate
 sqlc generate
-bunx tailwindcss -i ./static/css/input.css -o ./static/css/output.css
+bunx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css
 """
 
 [tasks.build]
