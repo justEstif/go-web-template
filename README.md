@@ -1,13 +1,12 @@
 # Go Web Template
 
-Modern Go web application template with Chi, Templ, Tailwind CSS v4, DaisyUI, and HTMX.
+Modern Go web application template with Chi, Templ, missing.css, and HTMX.
 
 ## Features
 
 - **Chi** - Lightweight, idiomatic HTTP router
 - **Templ** - Type-safe Go templating
-- **Tailwind CSS v4** - Next-generation utility-first CSS (no config file needed!)
-- **DaisyUI v5** - Beautiful UI components
+- **missing.css** - Classless CSS framework
 - **HTMX** - Dynamic interactions without heavy JavaScript
 - **PostgreSQL** - Robust relational database
 - **sqlc** - Compile-time type-safe SQL
@@ -55,19 +54,18 @@ mise run setup
 ```
 
 This will:
-- Install Node dependencies (Tailwind v4, DaisyUI)
+- Install Node dependencies
 - Run database migrations
 - Generate templ components
 - Generate type-safe SQL code
-- Build Tailwind CSS
 
 ### 5. Start Development
 
 Open two terminal windows:
 
-**Terminal 1 - CSS Watch:**
+**Terminal 1 - Watch for file changes (optional):**
 ```bash
-mise run css-watch
+mise run templ
 ```
 
 **Terminal 2 - Go Server:**
@@ -84,8 +82,6 @@ Open [http://localhost:3000](http://localhost:3000)
 Run `mise tasks` to see all available tasks:
 
 - `mise run dev` - Start development server with live reload
-- `mise run css` - Build Tailwind CSS once
-- `mise run css-watch` - Watch and rebuild CSS on changes
 - `mise run templ` - Generate templ files
 - `mise run db-migrate` - Run database migrations
 - `mise run db-rollback` - Rollback last migration
@@ -103,7 +99,6 @@ Run `mise tasks` to see all available tasks:
 │   ├── middleware/      # Custom middleware
 │   └── database/        # Database queries & connection
 ├── components/          # Templ templates
-├── static/css/          # CSS files
 ├── migrations/          # Database migrations
 ├── mise.toml           # Tool & task configuration
 └── docker-compose.yml  # PostgreSQL setup
@@ -111,16 +106,7 @@ Run `mise tasks` to see all available tasks:
 
 ## Development Notes
 
-### Tailwind CSS v4
-
-This template uses Tailwind CSS v4, which introduces a new CSS-first configuration approach:
-
-- **No tailwind.config.js** - Configuration is done in CSS using `@theme`
-- **New import syntax** - `@import "tailwindcss"` instead of `@tailwind` directives
-- **Plugin syntax** - `@plugin "daisyui"` for DaisyUI integration
-- **Faster builds** - Up to 5x faster full builds, 100x faster incremental builds
-
-### CSRF Protection
+### missing.css
 
 Forms use Gorilla CSRF middleware:
 - Token field name: `gorilla.csrf.Token`
@@ -161,4 +147,3 @@ Sample migration creates a `users` table. See `internal/database/queries.sql` fo
 ## License
 
 MIT
-# go-web-template

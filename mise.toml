@@ -1,6 +1,5 @@
 [tools]
 go = "latest"
-bun = "latest"
 "go:github.com/a-h/templ/cmd/templ" = "latest"
 "go:github.com/sqlc-dev/sqlc/cmd/sqlc" = "latest"
 "go:github.com/golang-migrate/migrate/v4/cmd/migrate" = { version = "latest", tags = "postgres" }
@@ -15,14 +14,6 @@ CSRF_KEY = "32-byte-long-auth-key-change-me"
 [tasks.dev]
 description = "Start development server with live reload"
 run = "air"
-
-[tasks.css]
-description = "Build Tailwind CSS"
-run = "bunx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css"
-
-[tasks.css-watch]
-description = "Watch and rebuild Tailwind CSS"
-run = "bunx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css --watch"
 
 [tasks.templ]
 description = "Generate templ files"
@@ -43,12 +34,11 @@ run = "sqlc generate"
 [tasks.setup]
 description = "Initial project setup (install deps, setup DB, generate code)"
 run = """
-bun install
 migrate -path migrations -database ${DATABASE_URL} up
 templ generate
 sqlc generate
-bunx @tailwindcss/cli -i ./static/css/input.css -o ./static/css/output.css
 """
+dir = "."
 
 [tasks.build]
 description = "Build production binary"

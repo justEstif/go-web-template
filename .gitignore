@@ -22,9 +22,6 @@ go.work
 # Templ generated files
 *_templ.go
 
-# Tailwind output
-static/css/output.css
-
 # Environment
 .env
 mise.local.toml
