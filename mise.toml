@@ -15,10 +15,6 @@ CSRF_KEY = "32-byte-long-auth-key-change-me"
 description = "Start development server with live reload"
 run = "air"
 
-[tasks.templ]
-description = "Generate templ files"
-run = "templ generate"
-
 [tasks.db-migrate]
 description = "Run database migrations"
 run = "migrate -path migrations -database ${DATABASE_URL} up"

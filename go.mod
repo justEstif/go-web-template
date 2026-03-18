@@ -3,7 +3,7 @@ module github.com/justestif/go-web-template
 go 1.23.0
 
 require (
-	github.com/a-h/templ v0.3.977
+	github.com/a-h/templ v0.3.1001
 	github.com/go-chi/chi/v5 v5.2.0
 	github.com/gorilla/csrf v1.7.2
 	github.com/jackc/pgx/v5 v5.7.2

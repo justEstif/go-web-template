@@ -41,6 +41,12 @@ Thumbs.db
 node_modules/
 bun.lockb
 
+# Tailwind CSS standalone
+tailwindcss
+daisyui.mjs
+daisyui-theme.mjs
+static/css/tailwind.css
+
 # Database
 *.db
 *.sqlite

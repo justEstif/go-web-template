@@ -34,6 +34,7 @@ mise install
 ```
 
 This installs:
+
 - Go (latest)
 - Bun (latest)
 - templ (latest)
@@ -54,6 +55,7 @@ mise run setup
 ```
 
 This will:
+
 - Install Node dependencies
 - Run database migrations
 - Generate templ components
@@ -61,14 +63,6 @@ This will:
 
 ### 5. Start Development
 
-Open two terminal windows:
-
-**Terminal 1 - Watch for file changes (optional):**
-```bash
-mise run templ
-```
-
-**Terminal 2 - Go Server:**
 ```bash
 mise run dev
 ```
@@ -82,7 +76,6 @@ Open [http://localhost:3000](http://localhost:3000)
 Run `mise tasks` to see all available tasks:
 
 - `mise run dev` - Start development server with live reload
-- `mise run templ` - Generate templ files
 - `mise run db-migrate` - Run database migrations
 - `mise run db-rollback` - Rollback last migration
 - `mise run sqlc` - Generate type-safe SQL code
@@ -109,6 +102,7 @@ Run `mise tasks` to see all available tasks:
 ### missing.css
 
 Forms use Gorilla CSRF middleware:
+
 - Token field name: `gorilla.csrf.Token`
 - Access in templates: `csrf.Token(r)`
 - Automatically validated on POST/PUT/DELETE
@@ -121,6 +115,7 @@ Sample migration creates a `users` table. See `internal/database/queries.sql` fo
 ## Production Deployment
 
 1. Set environment variables:
+
    ```bash
    export DATABASE_URL="postgres://..."
    export CSRF_KEY="your-32-byte-secret-key"
@@ -130,11 +125,13 @@ Sample migration creates a `users` table. See `internal/database/queries.sql` fo
 2. Update CSRF middleware to use `secure=true` in `cmd/web/main.go`
 
 3. Build production binary:
+
    ```bash
    mise run build
    ```
 
 4. Run migrations:
+
    ```bash
    mise run db-migrate
    ```

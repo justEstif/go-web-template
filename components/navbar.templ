@@ -1,12 +1,16 @@
 package components
 
 templ Navbar() {
-	<nav>
-		<a href="/" class="brand">MyApp</a>
-		<ul>
-			<li><a href="/">Home</a></li>
-			<li><a href="/about">About</a></li>
-			<li><a href="/contact">Contact</a></li>
-		</ul>
-	</nav>
+	<div class="navbar bg-base-100 shadow-sm">
+		<div class="navbar-start">
+			<a href="/" class="btn btn-ghost text-xl">MyApp</a>
+		</div>
+		<div class="navbar-end">
+			<ul class="menu menu-horizontal px-1">
+				<li><a href="/">Home</a></li>
+				<li><a href="/about">About</a></li>
+				<li><a href="/contact">Contact</a></li>
+			</ul>
+		</div>
+	</div>
 }
