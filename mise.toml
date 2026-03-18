@@ -12,7 +12,8 @@ BASE_URL = "http://127.0.0.1:3000"
 # Use 127.0.0.1 (not localhost) for OAuth redirect URIs — some providers (e.g. Spotify) reject localhost
 # Generate values with: openssl rand -base64 32
 CSRF_KEY = "32-byte-long-auth-key-change-me"
-SESSION_SECRET = "change-me-session-secret-32bytes"
+# Sessions are stored server-side in Postgres (SCS pgxstore) — no session secret needed.
+# Only the CSRF key and encryption key (for stored credentials) require secrets.
 ENCRYPTION_KEY = "change-me-64-hex-char-aes256-key-change-me-64-hex-char-aes256key"
 
 [tasks.dev]

@@ -3,6 +3,7 @@ package middleware
 import (
 	"net/http"
 
+	"github.com/alexedwards/scs/v2"
 	"github.com/justestif/go-web-template/internal/auth"
 )
 
@@ -11,18 +12,23 @@ import (
 // pages that render differently for logged-in vs anonymous visitors (e.g. the
 // landing page navbar showing "Sign in" vs an avatar).
 //
-// Retrieve the session user ID in a handler with:
+// SCS's LoadAndSave middleware must wrap the router for session data to be
+// available. OptionalAuth reads from the already-loaded session context.
 //
-//	id, ok := r.Context().Value(auth.SessionUserID).([16]byte)
-func OptionalAuth(sm *auth.SessionManager) func(http.Handler) http.Handler {
+// Retrieve the user ID in a handler with:
+//
+//	id, ok := auth.UserIDFromContext(r.Context())
+func OptionalAuth(sm *scs.SessionManager) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			id, err := sm.GetUserIDFromSession(r)
-			if err != nil {
+			idBytes := sm.GetBytes(r.Context(), auth.SessionUserID)
+			if len(idBytes) != 16 {
 				next.ServeHTTP(w, r)
 				return
 			}
 
+			var id [16]byte
+			copy(id[:], idBytes)
 			ctx := auth.ContextWithUserID(r.Context(), id)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -31,10 +37,14 @@ func OptionalAuth(sm *auth.SessionManager) func(http.Handler) http.Handler {
 
 // RequireAuth rejects unauthenticated requests with a redirect to /login.
 // Place this on any route group that requires a logged-in user.
-func RequireAuth(sm *auth.SessionManager) func(http.Handler) http.Handler {
+//
+// SCS's LoadAndSave middleware must wrap the router for session data to be
+// available. RequireAuth reads from the already-loaded session context.
+func RequireAuth(sm *scs.SessionManager) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if _, err := sm.GetUserIDFromSession(r); err != nil {
+			idBytes := sm.GetBytes(r.Context(), auth.SessionUserID)
+			if len(idBytes) != 16 {
 				http.Redirect(w, r, "/login", http.StatusSeeOther)
 				return
 			}

@@ -2,11 +2,16 @@ package auth
 
 import (
 	"context"
-	"encoding/gob"
 	"net/http"
+	"time"
 
-	"github.com/gorilla/sessions"
+	"github.com/alexedwards/scs/pgxstore"
+	"github.com/alexedwards/scs/v2"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+// SessionUserID is the key used to store the user ID in the session.
+const SessionUserID = "user_id"
 
 type contextKey string
 
@@ -24,73 +29,23 @@ func UserIDFromContext(ctx context.Context) ([16]byte, bool) {
 	return id, ok
 }
 
-// Register [16]byte so gorilla/sessions can serialize uuid.UUID values
-// (uuid.UUID is [16]byte) via encoding/gob. Without this, storing a UUID in
-// a session silently fails at runtime when the cookie is decoded on the next
-// request.
-func init() {
-	gob.Register([16]byte{})
-}
-
-const (
-	SessionName   = "app_session"
-	SessionUserID = "user_id"
-)
-
-// SessionManager wraps a gorilla/sessions store.
-type SessionManager struct {
-	store sessions.Store
-}
-
-// NewSessionManager creates a SessionManager backed by a signed cookie store.
-// secret should come from SESSION_SECRET env var.
-// Set Secure: true in production (HTTPS only).
-func NewSessionManager(secret []byte) *SessionManager {
-	store := sessions.NewCookieStore(secret)
-	store.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400 * 7, // 7 days
-		HttpOnly: true,
-		// SameSite: Lax (not Strict) so the session cookie is sent on OAuth
-		// redirect callbacks from the provider back to your app. Strict would
-		// drop the cookie on those cross-site redirects, breaking the flow.
-		// The CSRF middleware uses SameSite: Strict separately for its own cookie.
-		SameSite: http.SameSiteLaxMode,
-		Secure:   false, // set true in production
-	}
-	return &SessionManager{store: store}
-}
-
-// SetUserSession stores the user ID (as [16]byte) in the session.
-func (sm *SessionManager) SetUserSession(w http.ResponseWriter, r *http.Request, userID [16]byte) error {
-	session, err := sm.store.Get(r, SessionName)
-	if err != nil {
-		return err
-	}
-	session.Values[SessionUserID] = userID
-	return session.Save(r, w)
-}
-
-// GetUserIDFromSession retrieves the user ID from the session.
-// Returns http.ErrNoCookie if no valid session exists.
-func (sm *SessionManager) GetUserIDFromSession(r *http.Request) ([16]byte, error) {
-	session, err := sm.store.Get(r, SessionName)
-	if err != nil {
-		return [16]byte{}, err
-	}
-	id, ok := session.Values[SessionUserID].([16]byte)
-	if !ok {
-		return [16]byte{}, http.ErrNoCookie
-	}
-	return id, nil
-}
-
-// ClearSession invalidates the session cookie.
-func (sm *SessionManager) ClearSession(w http.ResponseWriter, r *http.Request) error {
-	session, err := sm.store.Get(r, SessionName)
-	if err != nil {
-		return err
-	}
-	session.Options.MaxAge = -1
-	return session.Save(r, w)
+// NewSessionManager creates an SCS session manager backed by PostgreSQL via
+// pgxstore. Session data is stored server-side; the client only receives an
+// opaque token in a cookie — no gob registration needed, no data in the cookie.
+//
+// Requires a `sessions` table — see migrations/002_create_sessions.up.sql.
+//
+// SameSite is Lax (not Strict) so the session cookie is sent when an OAuth
+// provider redirects back to your app (a cross-site top-level navigation).
+// Strict would silently drop the cookie on that redirect, breaking auth state.
+// The CSRF cookie is separately Strict (see internal/middleware/csrf.go).
+func NewSessionManager(pool *pgxpool.Pool) *scs.SessionManager {
+	sm := scs.New()
+	sm.Store = pgxstore.New(pool)
+	sm.Lifetime = 7 * 24 * time.Hour
+	sm.Cookie.Name = "session"
+	sm.Cookie.HttpOnly = true
+	sm.Cookie.SameSite = http.SameSiteLaxMode
+	sm.Cookie.Secure = false // set true in production (HTTPS)
+	return sm
 }
