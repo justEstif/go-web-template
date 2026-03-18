@@ -8,8 +8,12 @@ go = "latest"
 [env]
 DATABASE_URL = "postgres://postgres:postgres@localhost:5432/appdb?sslmode=disable"
 PORT = "3000"
-# TODO openssl rand -base64 32 | tr -d '=' | cut -c1-32
+BASE_URL = "http://127.0.0.1:3000"
+# Use 127.0.0.1 (not localhost) for OAuth redirect URIs — some providers (e.g. Spotify) reject localhost
+# Generate values with: openssl rand -base64 32
 CSRF_KEY = "32-byte-long-auth-key-change-me"
+SESSION_SECRET = "change-me-session-secret-32bytes"
+ENCRYPTION_KEY = "change-me-64-hex-char-aes256-key-change-me-64-hex-char-aes256key"
 
 [tasks.dev]
 description = "Start development server with live reload"
@@ -38,4 +42,8 @@ dir = "."
 
 [tasks.build]
 description = "Build production binary"
-run = "go build -o bin/app cmd/web/main.go"
+run = """
+./tailwindcss -i styles/input.css -o static/css/tailwind.css --minify
+templ generate
+go build -o bin/app cmd/web/main.go
+"""

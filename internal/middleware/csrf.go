@@ -22,6 +22,13 @@ import (
 // - Set secure=true in production (HTTPS only)
 // - Token automatically validated on POST/PUT/DELETE requests
 // - Token field name is "gorilla.csrf.Token"
+//
+// SameSite note: CSRF uses Strict; session cookies (see internal/auth/session.go)
+// use Lax. This is intentional. The CSRF cookie only needs to be sent on
+// same-site requests, so Strict is correct. The session cookie must be Lax so
+// it is sent when the OAuth provider redirects back to your app (a cross-site
+// top-level navigation) — Strict would drop the session cookie on that redirect,
+// breaking the logged-in state after OAuth login.
 func SetupCSRF(key []byte, secure bool) func(http.Handler) http.Handler {
 	return csrf.Protect(
 		key,
